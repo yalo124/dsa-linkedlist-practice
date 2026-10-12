@@ -57,8 +57,5 @@ int main(){
 
     int pos, count = 0, i =1;
 
-     
-
-
     return 0;
 }

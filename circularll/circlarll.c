@@ -63,6 +63,7 @@ void insertAtPosition(struct Node** head, int data,
         newNode->next = *head;
     }
     else if (position == 0) {
+        free(newNode);                 // insertAtBeginning makes its own node
         insertAtBeginning(head, data);
     }
     else {
@@ -146,6 +147,7 @@ void deleteAtPosition(struct Node** head, int position)
 void traverse(struct Node* head)
 {
     if (head == NULL) {
+        printf("List is empty\n");
         return;
     }
     struct Node* temp = head;
@@ -172,39 +174,130 @@ int search(struct Node* head, int key)
     return 0; // Key not found
 }
 
-// Driver program
+// Driver program (menu-driven)
 int main()
 {
     struct Node* head = NULL;
+    int choice, data, position, count;
 
-    // Insertion
-    insertAtEnd(&head, 10);
-    insertAtEnd(&head, 20);
-    insertAtBeginning(&head, 5);
-    insertAtPosition(&head, 15, 2);
+    do {
+        printf("\n===== Circular Linked List =====\n");
+        printf("1. Insert at beginning\n");
+        printf("2. Insert at end\n");
+        printf("3. Insert at position\n");
+        printf("4. Delete from beginning\n");
+        printf("5. Delete from end\n");
+        printf("6. Delete at position\n");
+        printf("7. Display list\n");
+        printf("8. Search\n");
+        printf("0. Exit\n");
+        printf("Choice: ");
 
-    // Traversal
-    printf("Circular Linked List: ");
-    traverse(head);
+        if (scanf("%d", &choice) != 1) {
+            printf("Invalid input\n");
+            while (getchar() != '\n');   // clear the bad input
+            choice = -1;
+            continue;
+        }
 
-    // Deletion
-    deleteFromEnd(&head);
-    deleteAtPosition(&head, 1);
+        // Count nodes so position-based operations can be validated
+        count = 0;
+        if (head != NULL) {
+            struct Node* temp = head;
+            do {
+                count++;
+                temp = temp->next;
+            } while (temp != head);
+        }
 
-    // Traversal after deletion
-    printf("Circular Linked List after deletion: ");
-    traverse(head);
+        switch (choice) {
+            case 1:
+                printf("Enter a value: ");
+                scanf("%d", &data);
+                insertAtBeginning(&head, data);
+                printf("Inserted %d at beginning\n", data);
+                break;
 
-    // Searching
-    int key = 10;
-    if (search(head, key)) {
-        printf("Element %d is found in the linked list.\n",
-               key);
-    }
-    else {
-        printf(
-            "Element %d is not found in the linked list.\n",
-            key);
+            case 2:
+                printf("Enter a value: ");
+                scanf("%d", &data);
+                insertAtEnd(&head, data);
+                printf("Inserted %d at end\n", data);
+                break;
+
+            case 3:
+                printf("Enter a value: ");
+                scanf("%d", &data);
+                printf("Enter position (0 to %d): ", count);
+                scanf("%d", &position);
+                if (position < 0 || position > count) {
+                    printf("Position out of range\n");
+                } else {
+                    insertAtPosition(&head, data, position);
+                    printf("Inserted %d at position %d\n", data, position);
+                }
+                break;
+
+            case 4:
+                if (head == NULL) {
+                    printf("List is empty\n");
+                } else {
+                    deleteFromBeginning(&head);
+                    printf("Deleted from beginning\n");
+                }
+                break;
+
+            case 5:
+                if (head == NULL) {
+                    printf("List is empty\n");
+                } else {
+                    deleteFromEnd(&head);
+                    printf("Deleted from end\n");
+                }
+                break;
+
+            case 6:
+                if (head == NULL) {
+                    printf("List is empty\n");
+                    break;
+                }
+                printf("Enter position (0 to %d): ", count - 1);
+                scanf("%d", &position);
+                if (position < 0 || position >= count) {
+                    printf("Position out of range\n");
+                } else {
+                    deleteAtPosition(&head, position);
+                    printf("Deleted node at position %d\n", position);
+                }
+                break;
+
+            case 7:
+                printf("Circular Linked List: ");
+                traverse(head);
+                break;
+
+            case 8:
+                printf("Enter value to search: ");
+                scanf("%d", &data);
+                if (search(head, data)) {
+                    printf("Element %d is found in the linked list.\n", data);
+                } else {
+                    printf("Element %d is not found in the linked list.\n", data);
+                }
+                break;
+
+            case 0:
+                printf("Goodbye!\n");
+                break;
+
+            default:
+                printf("Invalid choice\n");
+        }
+    } while (choice != 0);
+
+    // Free all remaining nodes before exiting
+    while (head != NULL) {
+        deleteFromBeginning(&head);
     }
 
     return 0;
